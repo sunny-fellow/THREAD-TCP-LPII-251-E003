@@ -39,3 +39,26 @@ Assim, a Etapa 1 encapsula num módulo thread-safe toda a lógica de logging, de
 ![Diagrama com a estrutura simples de comunicação entre Cliente, Server e Logger](assets/DIAGRAMA-A.png)
 
 ![Diagrama mais elaborado das ações entre os três](assets/DIAGRAMA-B.png)
+
+## _[LPII-251-E003-2]_ Testes com Servidor e Clientes TCP
+
+### Instruções de Uso
+
+Primeiramente, para garantir que os scripts estejam com permissão de executar, use os seguintes comandos.
+
+```bash
+chmod +x v2_test.sh
+chmod +x v2_teste_manual.sh
+```
+
+Para testar a comunicação entre servidor e clientes TCP, utilize o script `v2_test.sh` que automatiza a execução do servidor e de dois clientes.
+
+```bash
+./v2_test.sh
+```
+
+Para testar de forma manual use o script `v2_teste_manual.sh`
+
+```bash
+./v2_teste_manual.sh
+```

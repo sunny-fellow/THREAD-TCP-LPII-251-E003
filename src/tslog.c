@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/syscall.h> // para gettid
 
 static FILE *log_fp = NULL;
 static pthread_mutex_t log_mutex;
@@ -51,19 +52,24 @@ static void tslog_vlog(const char *level, const char *fmt, va_list args)
     strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm_now);
 
     // Thread ID
-    pid_t tid = (pid_t)syscall(186); // Linux: gettid
+    pid_t tid = (pid_t)syscall(SYS_gettid);
+
+    // Cria cópia do va_list para múltiplos usos
+    va_list args_copy;
+    va_copy(args_copy, args);
 
     // Escrita no terminal
     printf("[%s] [TID %d] [%s] ", buf, tid, level);
     vprintf(fmt, args);
     printf("\n");
 
-    // Escrita no arquivp
+    // Escrita no arquivo
     fprintf(log_fp, "[%s] [TID %d] [%s] ", buf, tid, level);
-    vfprintf(log_fp, fmt, args);
+    vfprintf(log_fp, fmt, args_copy);
     fprintf(log_fp, "\n");
     fflush(log_fp);
 
+    va_end(args_copy);
     pthread_mutex_unlock(&log_mutex);
 }
 
@@ -76,7 +82,7 @@ void tslog_log(const char *level, const char *fmt, ...)
     va_end(args);
 }
 
-// Logs para contextos especificos
+// Logs para contextos específicos
 void tslog_info(const char *fmt, ...)
 {
     va_list args;
@@ -98,5 +104,13 @@ void tslog_error(const char *fmt, ...)
     va_list args;
     va_start(args, fmt);
     tslog_vlog("ERROR", fmt, args);
+    va_end(args);
+}
+
+void tslog_message(const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    tslog_vlog("TXT", fmt, args);
     va_end(args);
 }
