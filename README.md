@@ -62,3 +62,35 @@ Para testar de forma manual use o script `v2_teste_manual.sh`
 ```bash
 ./v2_teste_manual.sh
 ```
+
+## _[LPII-251-E003-2]_ Testes com Servidor e Clientes TCP
+
+### Diagrama
+
+![Diagrama completo com uma timeline de interações entre as diferetes partes do programa](assets/DIAGRAMA_C.png)
+
+### Mapeamento de Requisitos ao Código
+
+| **Requisito**                                       | **Implementação no Código**                                                                 |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| Comunicação TCP entre múltiplos clientes e servidor | `server.c` (`accept`, `recv`, `send`, `broadcast`) / `client.c` (`connect`, `send`, `recv`) |
+| Histórico de mensagens                              | Estrutura `MessageHistory` e funções `history_add`, `history_send_all` em `server.c`        |
+| Identificação de cliente por nome                   | `client_run()` — leitura do nome e prefixo `[nome]: msg`                                    |
+| Logging thread-safe                                 | Biblioteca `libtslog` (`tslog.c`, `tslog.h`) — usada em todas as threads                    |
+| Recepção assíncrona de mensagens                    | `receive_handler` (thread dedicada no cliente)                                              |
+| Broadcast de mensagens                              | `broadcast()` — envio a todos os clientes conectados                                        |
+| Script de testes automáticos                        | `v2_test.sh` — executa servidor e múltiplos clientes simultaneamente                        |
+| Finalização segura e limpeza                        | `server_stop()`, `make clean`, tratamento de sinal `SIGPIPE`                                |
+
+
+
+### Uso de IA
+
+Durante o desenvolvimento, foi empregada análise assistida por IA para depurar falhas de segmentação no cliente (além do uso de ferramentas de diagnóstico como o valgrind), identificando condições de corrida e erros de ponteiro, além de refatorar a arquitetura de threads e sincronização com o uso de atomic_int e mutexes. A IA auxiliou também na revisão do protocolo de mensagens, garantindo consistência entre recv e send_full, e na criação de scripts de teste automatizados com múltiplos terminais para simular sessões reais.
+
+### Demonstração
+
+![Demonstração do funcionamento do server e clientes em terminais distintos](assets/DEMO_LPIIE003.mov)
+
+
+*(Em caso de falha do GitHub em mostrar o embed, o vídeo se encontra em /assets/DEMO_LPII003 em formatos .mov e .mp4)*
